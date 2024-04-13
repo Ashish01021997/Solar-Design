@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Engineering Calculator</title>
+
+</head>
+
+<body>
+    <h1>Solar Engineering Calculator</h1>
+    <form id="input-container">
+
+        <label for="X">GPS Coordinate (X):</label>
+        <input type="text" id="latitude" placeholder="Enter X"><br><br>
+
+        <label for="Y">GPS Coordinate (Y):</label>
+        <input type="text" id="longitude" placeholder="Enter Y"><br><br>
+
+        <label for="date"> The Current Date:</label>
+        <input type="text" id="date" placeholder="Enter date"><br><br>
+
+        <label for="date"> The Current Month:</label>
+        <input type="text" id="month" placeholder="Enter date"><br><br>
+
+        <label for="date"> Temperature:</label>
+        <input type="text" id="temperature" placeholder="Enter date"><br><br>
+
+        <label for="date"> Relative Humidity:</label>
+        <input type="text" id="relative_humidity" placeholder="Enter date"><br><br>
+
+        <label for="Load">Total Load (W):</label>
+        <input type="text" id="Load" placeholder="Enter Load"><br><br>
+
+        <label for="Energy_Demand">Daily Energy Demand (Wh):</label>
+        <input type="text" id="Energy_Demand" placeholder="Enter Energy_Demand"><br><br>
+
+        <label for="eta_inv">Inverter Efficiency:</label>
+        <input type="text" id="eta_inv" placeholder="Enter Inverter Efficiency"><br><br>
+
+        <label for="eta_bat">Battery Efficiency:</label>
+        <input type="text" id="eta_bat" placeholder="Enter Battery Efficiency"><br><br>
+
+        <label for="system_voltage">System Voltage (V):</label>
+        <input type="text" id="system_voltage" placeholder="Enter System Voltage"><br><br>
+
+        <label for="days_of_autonomy">Days of Autonomy:</label>
+        <input type="text" id="days_of_autonomy" placeholder="Enter Days of Autonomy"><br><br>
+
+        <label for="pv_panel_rating">Solar Panel Rating (W):</label>
+        <input type="text" id="pv_panel_rating" placeholder="Enter Solar Panel Rating"><br><br>
+
+        <label for="voc">Open Circuit Voltage (Voc):</label>
+        <input type="text" id="voc" placeholder="Enter Voc"><br><br>
+
+        <label for="isc">Short Circuit Current (Isc):</label>
+        <input type="text" id="isc" placeholder="Enter Isc"><br><br>
+
+        <label for="shading_loss_factor">Shading Loss Factor:</label>
+        <input type="text" id="shading_loss_factor" placeholder="Shading Loss Factor"><br><br>
+
+        <label for="area_of_pv_panel">Panel Area (m^2):</label>
+        <input type="text" id="area_of_pv_panel" placeholder="Enter Panel Area"><br><br>
+
+        <label for="eta_generator">Generator Efficiency:</label>
+        <input type="text" id="eta_generator" placeholder="Enter Generator Efficiency"><br><br>
+
+
+        <button type="submit">Calculate</button>
+    </form>
+
+    <div id="result-container"></div>
+
+    <script>
+        document.getElementById('input-container').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            // Get input values
+
+            let latitude = parseFloat(document.getElementById('latitude').value);
+            let longitude = parseFloat(document.getElementById('longitude').value);
+            let date = document.getElementById('date').value;
+            let month = parseInt(document.getElementById('month').value);
+            let temperature = parseFloat(document.getElementById('temperature').value);
+            let relative_humidity = parseFloat(document.getElementById('relative_humidity').value);
+            let Load = parseFloat(document.getElementById('Load').value);
+            let Energy_Demand = parseFloat(document.getElementById('Energy_Demand').value); // Corrected id
+            let eta_inv = parseFloat(document.getElementById('eta_inv').value);
+            let eta_bat = parseFloat(document.getElementById('eta_bat').value);
+            let system_voltage = parseFloat(document.getElementById('system_voltage').value);
+            let days_of_autonomy = parseFloat(document.getElementById('days_of_autonomy').value);
+            let pv_panel_rating = parseFloat(document.getElementById('pv_panel_rating').value); // Corrected id
+            let voc = parseFloat(document.getElementById('voc').value);
+            let isc = parseFloat(document.getElementById('isc').value);
+            let shading_loss_factor = parseFloat(document.getElementById('shading_loss_factor').value); // Corrected id
+            let area_of_pv_panel = parseFloat(document.getElementById('area_of_pv_panel').value); // Corrected id
+            let eta_generator = parseFloat(document.getElementById('eta_generator').value)
+
+
+            // Send input data to the backend
+            fetch('/calculate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    latitude, longitude, date, month, temperature, relative_humidity,
+                    Load, Energy_Demand, eta_inv, eta_bat,
+                    system_voltage, days_of_autonomy, pv_panel_rating, voc, isc, shading_loss_factor, area_of_pv_panel, eta_generator
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Display the result
+                    document.getElementById('result-container').innerHTML = `GHI: ${data.result.ghi}, inverter_size: ${data.result.inverter_size},
+                        battery_size: ${data.result.battery_size},
+                        battery_Ah_capacity: ${data.result.battery_Ah_capacity},
+                        number_of_panels: ${data.result.number_of_panels},
+                        number_of_series_panels: ${data.result.number_of_series_panels},
+                        number_of_parallel_panels: ${data.result.number_of_parallel_panels},
+                        pv_panel_efficiency: ${data.result.pv_panel_efficiency},
+                        system_efficiency: ${data.result.system_efficiency},
+                        generator_capacity: ${data.result.generator_capacity}`;
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+
+</html>
